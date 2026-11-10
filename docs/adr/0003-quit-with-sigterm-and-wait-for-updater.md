@@ -29,6 +29,7 @@ app has exited. Starting the app during that swap can launch a half-replaced bun
 
 - A session that is mid-turn is stopped without a prompt. The menu bar app therefore asks first on
   a manual switch when a transcript was written in the last 20 s; an automatic switch does not ask.
-- A switch across a pending update takes longer (seen once: under two minutes). [V]
-- If the app ever stops handling SIGTERM this way, the switch still works but may hit the dialog
-  path's absence of cleanup; re-check on app updates.
+- A switch across a pending update takes longer. It has happened once and completed [V]; how long
+  it took was not recorded.
+- If the app stops handling SIGTERM this way, a quit could skip the app's cleanup or be blocked.
+  Re-check on app updates.
