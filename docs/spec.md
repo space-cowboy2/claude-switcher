@@ -7,7 +7,7 @@
 | Work breakdown | [plan.md](plan.md) (milestones and GitHub issues) |
 | Decisions | [adr/](adr/) |
 
-Every claim below carries one of four marks:
+Every claim below carries one of five marks:
 
 | Mark | Meaning |
 | --- | --- |
@@ -65,9 +65,9 @@ command-line tool; two Claude Code hooks; install and uninstall scripts; backups
 4. Sign in with the second account. The session list is there.
 
 Expected: no further restart when the second account is one this Mac has seen before; one
-automatic restart when it is new (its session folder did not exist to be filled). **[V]** for a
-known account (live, 2026-11-09: 8 folders, 231 records copied, the app then wrote its own index
-file into the copied folder). **[A]** for a new account (unit-tested rule, never run live).
+automatic restart when it is new (its session folder did not exist to be filled). For a known account: the copy is **[V]** (live, 2026-11-09: 8 folders, 231 records copied); that
+the second account then showed the list is inferred from the app writing its own index file into
+the copied folder, and has not been confirmed by eye **[A]**. **[A]** for a new account (unit-tested rule, never run live).
 
 | Edge case | Behaviour |
 | --- | --- |
@@ -353,7 +353,7 @@ plan. The repository is private until that is settled. **[D]**
 | A6 | Real app: switch between two throwaway profiles while the main app stays up | Integration run, 2026-11-09 | Met |
 | A7 | Hook binary and menu bar app act on a real-shaped limit; ignore a transient one | Integration run, 2026-11-09 | Met |
 | A8 | Menu bar app runs under launchd and shows the active account | Process and printed menu | Met; login persistence not observed |
-| A9 | Second account signs in on the real profile and sees the shared list | Live: 33 records in all 8 folders; the app wrote its index in the copied folder | Met |
+| A9 | Second account signs in on the real profile and sees the shared list | Live: signed in; 33 records in all 8 folders; the app wrote its index in the copied folder | Sign-in and copy met; "sees the list" inferred, owner to confirm |
 | A10 | Hooks fire in real desktop sessions on both profiles | none | **Open** (R1) |
 | A11 | A simulated limit on the real profiles switches and reopens the session; a message sent there gets a reply | none | **Open** (R3) |
 | A12 | A real usage limit switches | none | **Open** (R2); cannot be scheduled |
