@@ -69,6 +69,50 @@ final class EngineTests: XCTestCase {
         XCTAssertEqual(engine.instances(w.config), [Instance(pid: 501, profileId: 2)])
     }
 
+    func testAManualSwitchLandsOnTheSessionThatWasOpen() throws {
+        let (w, sys, engine) = make()
+        w.write("local_s1", "one", in: w.makeFolder(w.p1))
+        w.open("local_s1", in: w.p1)
+        sys.run(nil, pid: 10)
+
+        try engine.switchTo(reason: "manual")
+
+        let link = "claude://code/continue?session=local_s1"
+        XCTAssertEqual(sys.launches, [["--user-data-dir=" + w.p2.dataDir, link]])
+        XCTAssertEqual(sys.openedURLs, [link], "sent again once the app is up")
+        XCTAssertGreaterThanOrEqual(sys.slept, 8)
+    }
+
+    func testWhichSessionIsReopened() throws {
+        let (w, sys, engine) = make()
+        w.open("local_open-one", in: w.p1, asText: true)
+        XCTAssertEqual(ProfileProbe.openSession(w.p1), "local_open-one", "the app may store the pane state as text")
+        XCTAssertNil(ProfileProbe.openSession(w.p2))
+
+        // A session named by the caller (the one that hit a limit) wins over the open one.
+        sys.run(nil, pid: 10)
+        try engine.switchTo(reason: "limit", sessionId: "local_limited")
+        XCTAssertEqual(sys.openedURLs, ["claude://code/continue?session=local_limited"])
+
+        // First setup opens a profile that is not signed in yet: no link.
+        sys.procs = []; sys.run(nil, pid: 11); sys.launches = []; sys.openedURLs = []
+        try engine.switchTo(2, reason: "setup")
+        XCTAssertEqual(sys.launches, [["--user-data-dir=" + w.p2.dataDir]])
+        XCTAssertTrue(sys.openedURLs.isEmpty)
+
+        // Anything that is not a session id is ignored.
+        w.open("../../etc/passwd", in: w.p1)
+        XCTAssertNil(ProfileProbe.openSession(w.p1))
+
+        // The second send can be turned off.
+        var cfg = w.config; cfg.reopenDelay = 0; try w.store.saveConfig(cfg)
+        w.open("local_open-one", in: w.p2)
+        sys.procs = []; sys.run(w.p2.dataDir, pid: 12); sys.launches = []
+        try engine.switchTo(reason: "manual")
+        XCTAssertEqual(sys.launches, [["claude://code/continue?session=local_open-one"]])
+        XCTAssertTrue(sys.openedURLs.isEmpty)
+    }
+
     func testSwitchingBackToTheDefaultProfilePassesNoDataDir() throws {
         let (w, sys, engine) = make()
         sys.run(w.p2.dataDir, pid: 10)

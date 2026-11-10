@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.1 (2026-11-10)
+
+- **Fix: a switch could stall for 100 seconds and then fail.** Claude's "still working" dialog
+  blocked the quit, because SIGTERM never reaches the app's own signal handler. The quit signal is
+  now SIGQUIT, which does. A retried SIGTERM also killed the app without its cleanup; that cannot
+  happen now.
+- **A manual switch lands on the session you had open**, not on the Code home screen. The link is
+  passed at launch and sent again 8 seconds later (`reopenDelay`).
+- Docs: the spec and decision record 0003 are corrected; stars and pins being per profile is
+  recorded as a known gap.
+
 ## 0.2.0 (2026-11-10)
 
 - **Renamed from Claude Switcher to Second Wind.** The repository is `second-wind`, the command is

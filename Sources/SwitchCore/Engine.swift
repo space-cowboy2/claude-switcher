@@ -10,7 +10,10 @@ public struct ProcInfo: Equatable {
 
 public protocol System: AnyObject {
     func processes() -> [ProcInfo]
+    /// Asks the app to quit (`force: false`) or kills it (`force: true`).
     func terminate(pid: Int32, force: Bool)
+    /// Sends a `claude://` link to the running app.
+    func openURL(appPath: String, url: String)
     /// Starts a new instance of the app with the given arguments.
     func launch(appPath: String, args: [String]) throws
     /// Brings the already running app to the front.
@@ -41,7 +44,13 @@ public final class RealSystem: System {
         return out
     }
 
-    public func terminate(pid: Int32, force: Bool) { kill(pid, force ? SIGKILL : SIGTERM) }
+    /// SIGQUIT, not SIGTERM. The app's own signal handler skips its "Claude is still working"
+    /// dialog and then shuts down cleanly, but Chromium takes SIGTERM before that handler sees it,
+    /// so a SIGTERM quit can be vetoed by the dialog, and a second SIGTERM kills the app with no
+    /// cleanup at all. SIGQUIT is the one signal that reaches the app's handler.
+    public func terminate(pid: Int32, force: Bool) { kill(pid, force ? SIGKILL : SIGQUIT) }
+
+    public func openURL(appPath: String, url: String) { try? open(["-a", appPath, url]) }
 
     private func open(_ args: [String]) throws {
         let p = Process()
@@ -143,6 +152,20 @@ public enum ProfileProbe {
                                at: t > 1e11 ? t / 1000 : t)
         }
         return nil
+    }
+
+    /// The Code session a profile had open when it was last used, from the app's saved window
+    /// state. Reads one non-secret key.
+    public static func openSession(_ p: Profile) -> String? {
+        guard let data = try? Data(contentsOf: URL(fileURLWithPath: p.dataDir + "/claude_desktop_config.json")),
+              let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let prefs = (obj["preferences"] as? [String: Any])?["epitaxyPrefs"] as? [String: Any] else { return nil }
+        var panes = prefs["desktop-frame.paneStore.v1"]
+        if let text = panes as? String { panes = try? JSONSerialization.jsonObject(with: Data(text.utf8)) }
+        guard let state = (panes as? [String: Any])?["state"] as? [String: Any],
+              let id = (state["lastPrimaryCodeSession"] as? [String: Any])?["id"] as? String,
+              Engine.isSessionId(id) else { return nil }
+        return id
     }
 
     /// True when a Code transcript was written very recently, i.e. a session is probably working.
@@ -300,6 +323,10 @@ public final class Engine {
         self.system = system
     }
 
+    static func isSessionId(_ s: String) -> Bool {
+        s.range(of: "^local_[A-Za-z0-9-]{1,64}$", options: .regularExpression) != nil
+    }
+
     public func instances(_ cfg: Config) -> [Instance] {
         Instances.mains(config: cfg, procs: system.processes())
     }
@@ -333,7 +360,8 @@ public final class Engine {
     ///
     /// - Parameters:
     ///   - target: profile to end up on; nil means "the other one".
-    ///   - sessionId: a `local_…` session to reopen in the target profile.
+    ///   - sessionId: a `local_…` session to reopen in the target profile. When nil, the session the
+    ///     outgoing profile had open is used, so a switch lands where you were.
     ///   - force: SIGKILL if the app does not quit in time (default: give up instead).
     ///   - restart: also quit and restart the target when it is already running.
     @discardableResult
@@ -360,6 +388,12 @@ public final class Engine {
             if targetRunning && toQuit.isEmpty {
                 system.activate(appPath: cfg.appPath)
                 return SwitchResult(from: from, to: targetId, launched: false, report: nil)
+            }
+
+            // Read before quitting: the session to land on is the one the outgoing profile has open.
+            var reopen = sessionId.flatMap { Engine.isSessionId($0) ? $0 : nil }
+            if reopen == nil, reason != "setup", let leaving = toQuit.first?.profileId.flatMap(cfg.profile) {
+                reopen = ProfileProbe.openSession(leaving)
             }
 
             for i in toQuit { system.terminate(pid: i.pid, force: false) }
@@ -392,10 +426,15 @@ public final class Engine {
             } else {
                 var args: [String] = []
                 if !cfg.isDefault(tp) { args.append("--user-data-dir=" + tp.dataDir) }
-                if let s = sessionId, s.range(of: "^local_[A-Za-z0-9-]{1,64}$", options: .regularExpression) != nil {
-                    args.append("claude://code/continue?session=" + s)
-                }
+                let link = reopen.map { "claude://code/continue?session=" + $0 }
+                if let link { args.append(link) }
                 try system.launch(appPath: cfg.appPath, args: args)
+                // The link given at launch can arrive before the app has loaded the account's
+                // sessions. Sending it again to the running app is the path the app uses itself.
+                if let link, cfg.reopenDelay > 0 {
+                    system.sleep(cfg.reopenDelay)
+                    system.openURL(appPath: cfg.appPath, url: link)
+                }
             }
             store.log("switch \(from.map(String.init) ?? "-") -> \(targetId) (\(reason)) \(report?.description ?? "no sync")")
             return SwitchResult(from: from, to: targetId, launched: !keepTarget, report: report)

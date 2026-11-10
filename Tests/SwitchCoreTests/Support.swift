@@ -60,6 +60,15 @@ final class World {
             .filter { $0.hasPrefix("local_") && $0.hasSuffix(".json") }.map { String($0.dropLast(5)) }.sorted()
     }
 
+    /// Records which session a profile has open, the way the app saves it.
+    func open(_ session: String, in p: Profile, asText: Bool = false) {
+        try! FileManager.default.createDirectory(atPath: p.dataDir, withIntermediateDirectories: true)
+        let panes: [String: Any] = ["state": ["lastPrimaryCodeSession": ["id": session, "type": "local"]], "version": 4]
+        let value: Any = asText ? String(decoding: try! JSONSerialization.data(withJSONObject: panes), as: UTF8.self) : panes
+        let cfg: [String: Any] = ["preferences": ["epitaxyPrefs": ["desktop-frame.paneStore.v1": value]]]
+        try! JSONSerialization.data(withJSONObject: cfg).write(to: URL(fileURLWithPath: p.dataDir + "/claude_desktop_config.json"))
+    }
+
     /// Marks a profile as signed in to an account.
     func signIn(_ p: Profile, account: String) {
         try! FileManager.default.createDirectory(atPath: p.dataDir, withIntermediateDirectories: true)
@@ -79,6 +88,7 @@ final class FakeSystem: System {
     var terminated: [(pid: Int32, force: Bool)] = []
     var launches: [[String]] = []
     var activations = 0
+    var openedURLs: [String] = []
     /// Pids that ignore SIGTERM.
     var stubborn = Set<Int32>()
     /// Number of process listings for which the updater stays alive once no app instance is left.
@@ -119,6 +129,7 @@ final class FakeSystem: System {
     }
 
     func activate(appPath: String) { activations += 1 }
+    func openURL(appPath: String, url: String) { openedURLs.append(url) }
     func now() -> Date { clock }
     func sleep(_ seconds: Double) { clock.addTimeInterval(seconds); slept += seconds }
 }

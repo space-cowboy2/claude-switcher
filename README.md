@@ -102,8 +102,8 @@ This builds the tool and installs:
 | Switch from a terminal | `secondwind switch` |
 | Check state | `secondwind status` |
 
-After an automatic switch the session that hit the limit is open on the other account. Type
-"continue".
+After a switch you land on the same session: the one you had open, or after an automatic switch
+the one that hit the limit. Type "continue".
 
 ## Limitations
 
@@ -116,6 +116,8 @@ Control links, usage and billing.
 Things to know:
 
 - Switching quits Claude. A session that is mid-turn stops; it stays in the list.
+- Stars and pins do not follow you. A session you starred on one account is in the other
+  account's list, but unstarred, under its date.
 - Sessions sync while Claude is closed: at every switch, and whenever the menu bar app sees Claude
   quit. Never run both profiles at once; the app does not prevent it and the last writer wins.
 - A "No folder" session opened on the other profile behaves like a normal folder session and may

@@ -20,6 +20,7 @@ Everything that can be checked or built today without waiting for a real usage l
 | [#4](https://github.com/space-cowboy2/second-wind/issues/4) | Decide whether second-account use is within Anthropic's terms | P0 | decision | – |
 | [#5](https://github.com/space-cowboy2/second-wind/issues/5) | Re-check the app internals the tool relies on, on the current app version | P1 | verification | – |
 | [#6](https://github.com/space-cowboy2/second-wind/issues/6) | `secondwind doctor`: check the whole installation in one command | P1 | ops | [#1](https://github.com/space-cowboy2/second-wind/issues/1) |
+| [#24](https://github.com/space-cowboy2/second-wind/issues/24) | Confirm a switch quits Claude without its dialog and lands on the same session | P0 | verification | – |
 
 ## [M2 · Limit handling hardened](https://github.com/space-cowboy2/second-wind/milestone/2)
 
@@ -58,6 +59,7 @@ Keep it working across app updates and make it installable without edits. Exit: 
 
 ## Where to start
 
+0. [#24](https://github.com/space-cowboy2/second-wind/issues/24) first: one switch from the menu and one message. It checks the two fixes in 0.2.1.
 1. [#1](https://github.com/space-cowboy2/second-wind/issues/1), [#2](https://github.com/space-cowboy2/second-wind/issues/2) and [#4](https://github.com/space-cowboy2/second-wind/issues/4) need nothing else and can be done today. The first two take one sitting at the Mac.
 2. [#3](https://github.com/space-cowboy2/second-wind/issues/3) follows straight on from the drill.
 3. [#5](https://github.com/space-cowboy2/second-wind/issues/5) and [#6](https://github.com/space-cowboy2/second-wind/issues/6) are the first code changes.
