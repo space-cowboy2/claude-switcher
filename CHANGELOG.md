@@ -9,6 +9,7 @@
   (`io.github.space-cowboy2.secondwind`). `scripts/install.sh` replaces an install made under the
   old name: old app, old command, old login item and old hooks.
 - MIT license.
+- App icon: two gusts of wind on a sunset plate, drawn by `scripts/make-icon.swift`.
 - README: restructured as problem, solution, how it works, status, install, usage, limitations,
   with a real screenshot of the menu. Corrects the install note: only the `hooks` section of the
   settings file changes.

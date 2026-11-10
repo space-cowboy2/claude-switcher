@@ -1,3 +1,5 @@
+<img src="docs/images/icon.png" width="96" alt="Second Wind icon" align="right">
+
 # Second Wind
 
 Keep working in the Claude desktop app when one account hits its usage limit. Second Wind keeps two
@@ -145,6 +147,8 @@ swift test
 tested without the real app. `secondwind --home DIR …` points the tool at a throwaway config for
 experiments with throwaway profiles. Read [CONTRIBUTING.md](CONTRIBUTING.md) before changing
 anything.
+
+The app icon is drawn by `scripts/make-icon.swift`; run `scripts/make-icon.sh` after changing it.
 
 ## Documentation
 

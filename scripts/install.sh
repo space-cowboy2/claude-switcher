@@ -29,8 +29,9 @@ pkill -f "$APP/Contents/MacOS/SecondWindBar" 2>/dev/null || true
 rm -rf "$HOME/Applications/Claude Switcher.app" "$APP"
 rm -f "$HOME/.local/bin/claude-switch"
 
-mkdir -p "$APP/Contents/MacOS"
+mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp .build/release/SecondWindBar .build/release/secondwind "$APP/Contents/MacOS/"
+cp Resources/AppIcon.icns "$APP/Contents/Resources/"
 cat > "$APP/Contents/Info.plist" <<PLIST_EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -40,6 +41,7 @@ cat > "$APP/Contents/Info.plist" <<PLIST_EOF
   <key>CFBundleDisplayName</key><string>Second Wind</string>
   <key>CFBundleIdentifier</key><string>$LABEL</string>
   <key>CFBundleExecutable</key><string>SecondWindBar</string>
+  <key>CFBundleIconFile</key><string>AppIcon</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleShortVersionString</key><string>0.2.0</string>
   <key>CFBundleVersion</key><string>2</string>
