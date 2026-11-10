@@ -170,7 +170,7 @@ public final class Store {
     public init(home: URL? = nil) {
         if let home {
             self.home = home
-        } else if let env = ProcessInfo.processInfo.environment["CLAUDE_SWITCH_HOME"], !env.isEmpty {
+        } else if let env = ProcessInfo.processInfo.environment["SECONDWIND_HOME"], !env.isEmpty {
             self.home = URL(fileURLWithPath: Config.normalize(env))
         } else {
             self.home = URL(fileURLWithPath: NSHomeDirectory() + "/Library/Application Support/AccountSwitcher")

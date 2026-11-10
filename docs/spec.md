@@ -1,8 +1,8 @@
-# Claude Switcher: specification
+# Second Wind: specification
 
 | | |
 | --- | --- |
-| Version described | 0.1.0, as built and installed on 2026-11-09 |
+| Version described | 0.2.0. Built and installed on 2026-11-09 as Claude Switcher 0.1.0; renamed Second Wind on 2026-11-10 with no change in behaviour |
 | Scope of this document | What exists, what is proven, and what still has to change |
 | Work breakdown | [plan.md](plan.md) (milestones and GitHub issues) |
 | Decisions | [adr/](adr/) |
@@ -77,7 +77,7 @@ the copied folder, and has not been confirmed by eye **[A]**. **[A]** for a new 
 
 ### J2. Manual switch
 
-Menu → **Switch to Account N**, ⌃⌥S, clicking the other account's row, or `claude-switch switch`.
+Menu → **Switch to Account N**, ⌃⌥S, clicking the other account's row, or `secondwind switch`.
 
 Expected: Claude quits (SIGTERM), sessions sync, Claude opens on the other profile, signed in.
 **[V]** live in both directions on the real profiles; about 1 s on empty throwaway profiles, the
@@ -168,10 +168,10 @@ folder they were copied to. The first sync's backup of each original folder stay
  Claude Code session (child of the app)          Menu bar app (LaunchAgent)
  ┌──────────────────────────────┐               ┌─────────────────────────────┐
  │ StopFailure / SessionStart   │  event file   │ every 3 s: read events,     │
- │ hook → `claude-switch hook`  ├──────────────►│ decide, switch, sync,       │
+ │ hook → `secondwind hook`  ├──────────────►│ decide, switch, sync,       │
  └──────────────────────────────┘               │ redraw the menu             │
                                                 └──────────────┬──────────────┘
- `claude-switch` CLI ──────────────────────────────────────────┤
+ `secondwind` CLI ──────────────────────────────────────────┤
                                                                ▼
                                               SwitchCore (library, all logic)
                                  ┌───────────┬───────────┬───────────┬──────────┐
@@ -184,8 +184,8 @@ folder they were copied to. The first sync's backup of each original folder stay
 | Component | File | Role |
 | --- | --- | --- |
 | `SwitchCore` | `Sources/SwitchCore/` | Everything that decides or changes something. No UI. System access (process list, kill, open, clock) sits behind the `System` protocol so tests can replace it |
-| `claude-switch` | `Sources/claude-switch/main.swift` | Thin CLI over `SwitchCore`; also the hook entry points |
-| `ClaudeSwitcher` | `Sources/ClaudeSwitcher/main.swift` | AppKit status item; one serial work queue; notifications; global shortcut |
+| `secondwind` | `Sources/secondwind/main.swift` | Thin CLI over `SwitchCore`; also the hook entry points |
+| `SecondWindBar` | `Sources/SecondWindBar/main.swift` | AppKit status item; one serial work queue; notifications; global shortcut |
 
 Why the hook does not switch by itself: it runs as a child of the app that the switch is about to
 quit. It writes a file and exits; the menu bar app, which launchd owns, does the work. **[D]**
@@ -201,15 +201,15 @@ switch → `open -n -a Claude --args [--user-data-dir=…] [claude://…]`.
 
 | Command | Effect |
 | --- | --- |
-| `claude-switch status` | Both profiles: running, signed in, label, usage, limit mark |
-| `claude-switch switch [--to N] [--session local_ID] [--force]` | Switch. `--force` sends SIGKILL after the timeout instead of giving up |
-| `claude-switch sync` | Sync now; refuses while Claude runs |
-| `claude-switch auto on\|off` | Toggle automatic switching |
-| `claude-switch menu` | Print what the menu bar shows |
-| `claude-switch install-hooks` / `uninstall-hooks` `[--settings FILE] [--bin PATH]` | Edit the hooks |
-| `claude-switch hook stop-failure\|session-start` | Called by Claude Code |
-| `claude-switch test-limit --profile N [--session local_ID]` | Write a limit event as if profile N had hit its limit |
-| `--home DIR` or `CLAUDE_SWITCH_HOME` | Use another state folder (experiments on throwaway profiles) |
+| `secondwind status` | Both profiles: running, signed in, label, usage, limit mark |
+| `secondwind switch [--to N] [--session local_ID] [--force]` | Switch. `--force` sends SIGKILL after the timeout instead of giving up |
+| `secondwind sync` | Sync now; refuses while Claude runs |
+| `secondwind auto on\|off` | Toggle automatic switching |
+| `secondwind menu` | Print what the menu bar shows |
+| `secondwind install-hooks` / `uninstall-hooks` `[--settings FILE] [--bin PATH]` | Edit the hooks |
+| `secondwind hook stop-failure\|session-start` | Called by Claude Code |
+| `secondwind test-limit --profile N [--session local_ID]` | Write a limit event as if profile N had hit its limit |
+| `--home DIR` or `SECONDWIND_HOME` | Use another state folder (experiments on throwaway profiles) |
 
 ### Hook contract
 
@@ -293,18 +293,20 @@ or Screen Recording. The global shortcut uses Carbon hot keys, which need none. 
 
 **Signing.** Ad-hoc. Good for the machine it was built on; not distributable. **[D]**
 
+**License.** MIT. **[D]**
+
 **Terms of service.** Whether running a second account to keep working past a usage limit is
 permitted by Anthropic's terms is **not established**. **[Q]**, owner's decision, tracked in the
-plan. The repository is private until that is settled. **[D]**
+plan. The owner made the repository public on 2026-11-10 with this question still open. **[D]**
 
 **Operations.**
 
 | Task | How |
 | --- | --- |
 | See what happened | `switch.log` |
-| Check state | `claude-switch status`, `claude-switch menu` |
-| Stop automatic switching | Menu toggle or `claude-switch auto off` |
-| Stop everything | Menu → Quit Switcher (stays quit until next login) |
+| Check state | `secondwind status`, `secondwind menu` |
+| Stop automatic switching | Menu toggle or `secondwind auto off` |
+| Stop everything | Menu → Quit Second Wind (stays quit until next login) |
 | Recover a session record | Copy it from `backups/deleted` or `backups/initial-*` into a session folder while Claude is closed |
 | After a Claude update | Nothing automatic yet; see plan |
 
@@ -327,19 +329,19 @@ plan. The repository is private until that is settled. **[D]**
 
 | Spec item | Issue |
 | --- | --- |
-| R1, A10, I11: hooks in real sessions | [#1](https://github.com/space-cowboy2/claude-switcher/issues/1) |
-| R2, A12: real limit payload | [#7](https://github.com/space-cowboy2/claude-switcher/issues/7) |
-| R3, A11, FR-8, FR-11: drill and continue on the other account | [#2](https://github.com/space-cowboy2/claude-switcher/issues/2), [#3](https://github.com/space-cowboy2/claude-switcher/issues/3) |
-| R4: delete strands a session | [#12](https://github.com/space-cowboy2/claude-switcher/issues/12) |
-| R5: the app's own auto-resume | [#9](https://github.com/space-cowboy2/claude-switcher/issues/9) |
-| R6: both profiles open | [#14](https://github.com/space-cowboy2/claude-switcher/issues/14) |
-| R7: extra replica folders | [#16](https://github.com/space-cowboy2/claude-switcher/issues/16) |
-| R8, A13, NFR-7: app updates | [#5](https://github.com/space-cowboy2/claude-switcher/issues/5), [#18](https://github.com/space-cowboy2/claude-switcher/issues/18) |
-| R9: built-in switcher | [#19](https://github.com/space-cowboy2/claude-switcher/issues/19) |
-| R10: terms of service | [#4](https://github.com/space-cowboy2/claude-switcher/issues/4) |
-| FR-12 doctor, FR-13 restore | [#6](https://github.com/space-cowboy2/claude-switcher/issues/6), [#13](https://github.com/space-cowboy2/claude-switcher/issues/13) |
-| Limit rules beyond FR-6 | [#8](https://github.com/space-cowboy2/claude-switcher/issues/8), [#10](https://github.com/space-cowboy2/claude-switcher/issues/10), [#11](https://github.com/space-cowboy2/claude-switcher/issues/11) |
-| Upkeep | [#17](https://github.com/space-cowboy2/claude-switcher/issues/17), [#20](https://github.com/space-cowboy2/claude-switcher/issues/20) |
+| R1, A10, I11: hooks in real sessions | [#1](https://github.com/space-cowboy2/second-wind/issues/1) |
+| R2, A12: real limit payload | [#7](https://github.com/space-cowboy2/second-wind/issues/7) |
+| R3, A11, FR-8, FR-11: drill and continue on the other account | [#2](https://github.com/space-cowboy2/second-wind/issues/2), [#3](https://github.com/space-cowboy2/second-wind/issues/3) |
+| R4: delete strands a session | [#12](https://github.com/space-cowboy2/second-wind/issues/12) |
+| R5: the app's own auto-resume | [#9](https://github.com/space-cowboy2/second-wind/issues/9) |
+| R6: both profiles open | [#14](https://github.com/space-cowboy2/second-wind/issues/14) |
+| R7: extra replica folders | [#16](https://github.com/space-cowboy2/second-wind/issues/16) |
+| R8, A13, NFR-7: app updates | [#5](https://github.com/space-cowboy2/second-wind/issues/5), [#18](https://github.com/space-cowboy2/second-wind/issues/18) |
+| R9: built-in switcher | [#19](https://github.com/space-cowboy2/second-wind/issues/19) |
+| R10: terms of service | [#4](https://github.com/space-cowboy2/second-wind/issues/4) |
+| FR-12 doctor, FR-13 restore | [#6](https://github.com/space-cowboy2/second-wind/issues/6), [#13](https://github.com/space-cowboy2/second-wind/issues/13) |
+| Limit rules beyond FR-6 | [#8](https://github.com/space-cowboy2/second-wind/issues/8), [#10](https://github.com/space-cowboy2/second-wind/issues/10), [#11](https://github.com/space-cowboy2/second-wind/issues/11) |
+| Upkeep | [#17](https://github.com/space-cowboy2/second-wind/issues/17), [#20](https://github.com/space-cowboy2/second-wind/issues/20) |
 
 ## 13. Acceptance criteria and testing
 

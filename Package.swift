@@ -2,12 +2,12 @@
 import PackageDescription
 
 let package = Package(
-    name: "ClaudeSwitcher",
+    name: "SecondWind",
     platforms: [.macOS(.v13)],
     targets: [
         .target(name: "SwitchCore"),
-        .executableTarget(name: "claude-switch", dependencies: ["SwitchCore"]),
-        .executableTarget(name: "ClaudeSwitcher", dependencies: ["SwitchCore"]),
+        .executableTarget(name: "secondwind", dependencies: ["SwitchCore"]),
+        .executableTarget(name: "SecondWindBar", dependencies: ["SwitchCore"]),
         .testTarget(name: "SwitchCoreTests", dependencies: ["SwitchCore"]),
     ]
 )

@@ -2,18 +2,18 @@ import Foundation
 import SwitchCore
 
 let usage = """
-claude-switch: switch the Claude desktop app between two accounts.
+secondwind: switch the Claude desktop app between two accounts.
 
-  claude-switch status                 show both accounts and which one is active
-  claude-switch switch [--to N] [--session local_ID] [--force]
+  secondwind status                 show both accounts and which one is active
+  secondwind switch [--to N] [--session local_ID] [--force]
                                        quit Claude, sync sessions, open the other account
-  claude-switch sync                   sync the session list now (Claude must be closed)
-  claude-switch auto on|off            switch automatically when a usage limit is hit
-  claude-switch menu                   print what the menu bar shows
-  claude-switch install-hooks [--settings FILE] [--bin PATH]
-  claude-switch uninstall-hooks [--settings FILE]
-  claude-switch hook stop-failure|session-start    (called by Claude Code)
-  claude-switch test-limit --profile N [--session local_ID]
+  secondwind sync                   sync the session list now (Claude must be closed)
+  secondwind auto on|off            switch automatically when a usage limit is hit
+  secondwind menu                   print what the menu bar shows
+  secondwind install-hooks [--settings FILE] [--bin PATH]
+  secondwind uninstall-hooks [--settings FILE]
+  secondwind hook stop-failure|session-start    (called by Claude Code)
+  secondwind test-limit --profile N [--session local_ID]
                                        pretend profile N just hit its limit
 
   --home DIR   use DIR instead of ~/Library/Application Support/AccountSwitcher
@@ -81,7 +81,7 @@ case "sync":
     print(r)
 
 case "auto":
-    guard let v = args.first, v == "on" || v == "off" else { fail("usage: claude-switch auto on|off") }
+    guard let v = args.first, v == "on" || v == "off" else { fail("usage: secondwind auto on|off") }
     var c = store.loadConfig()
     c.autoSwitch = v == "on"
     do { try store.saveConfig(c) } catch { fail("\(error)") }
@@ -101,7 +101,7 @@ case "menu":
 
 case "install-hooks", "uninstall-hooks":
     let settings = URL(fileURLWithPath: Config.normalize(option("--settings") ?? "~/.claude/settings.json"))
-    let bin = option("--bin") ?? Config.normalize("~/.local/bin/claude-switch")
+    let bin = option("--bin") ?? Config.normalize("~/.local/bin/secondwind")
     do {
         if let backup = try HookInstaller.update(file: settings, bin: bin, install: command == "install-hooks") {
             print("updated \(settings.path) (backup: \(backup.lastPathComponent))")
@@ -127,7 +127,7 @@ case "hook":
 
 case "test-limit":
     guard let id = option("--profile").flatMap(Int.init), store.loadConfig().profile(id) != nil else {
-        fail("usage: claude-switch test-limit --profile N")
+        fail("usage: secondwind test-limit --profile N")
     }
     let event = LimitEvent(at: Date().timeIntervalSince1970, profileId: id, sessionId: option("--session"),
                            resetsAt: Date().timeIntervalSince1970 + 3600, limitType: "five_hour",

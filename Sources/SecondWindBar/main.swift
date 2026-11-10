@@ -9,7 +9,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private let store = Store()
     private lazy var engine = Engine(store: store)
     /// All engine work runs here, one thing at a time, off the main thread.
-    private let work = DispatchQueue(label: "claude-switcher.work")
+    private let work = DispatchQueue(label: "secondwind.work")
     private var item: NSStatusItem!
     private var status: Status?
     private var tickQueued = false
