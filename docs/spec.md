@@ -159,7 +159,7 @@ folder they were copied to. The first sync's backup of each original folder stay
 | NFR-3 | No data loss from one mistake: backups before first sync, a kept copy of every propagated deletion, mass-delete refusal | Met **[V]** unit |
 | NFR-4 | A hook returns in well under a second and always exits 0 | Met **[V]** (exits 0); timing not measured **[A]** |
 | NFR-5 | Switch completes in 20 s or less on the real profiles, excluding update installs | **[Q]** not timed |
-| NFR-6 | All logic testable without the real app | Met **[V]**: 41 tests against a fake process table and clock |
+| NFR-6 | All logic testable without the real app | Met **[V]**: 42 tests against a fake process table and clock |
 | NFR-7 | Survives app updates: the internals it relies on are listed and can be re-checked | Listed in section 8; no check exists yet, see plan |
 
 ## 6. Architecture
@@ -168,10 +168,10 @@ folder they were copied to. The first sync's backup of each original folder stay
  Claude Code session (child of the app)          Menu bar app (LaunchAgent)
  ┌──────────────────────────────┐               ┌─────────────────────────────┐
  │ StopFailure / SessionStart   │  event file   │ every 3 s: read events,     │
- │ hook → `secondwind hook`  ├──────────────►│ decide, switch, sync,       │
+ │ hook → `secondwind hook`     ├──────────────►│ decide, switch, sync,       │
  └──────────────────────────────┘               │ redraw the menu             │
                                                 └──────────────┬──────────────┘
- `secondwind` CLI ──────────────────────────────────────────┤
+ `secondwind` CLI ─────────────────────────────────────────────┤
                                                                ▼
                                               SwitchCore (library, all logic)
                                  ┌───────────┬───────────┬───────────┬──────────┐
@@ -351,7 +351,7 @@ plan. The owner made the repository public on 2026-11-10 with this question stil
 | A2 | Limit classifier: real messages and transcript entries are limits with a reset time; transient errors are not | 6 unit tests | Met |
 | A3 | Decision rules of FR-6, one test per reason | 2 unit tests (12 cases) | Met |
 | A4 | Switch order, arguments, timeout, force, restart, updater wait, failed sync | 13 unit tests | Met |
-| A5 | Hook install: idempotent, keeps other hooks, changes only the `hooks` value, leaves bad files alone | 4 unit tests and the real file | Met |
+| A5 | Hook install: idempotent, keeps other hooks, changes only the `hooks` value, leaves bad files alone | 5 unit tests and the real file | Met |
 | A6 | Real app: switch between two throwaway profiles while the main app stays up | Integration run, 2026-11-09 | Met |
 | A7 | Hook binary and menu bar app act on a real-shaped limit; ignore a transient one | Integration run, 2026-11-09 | Met |
 | A8 | Menu bar app runs under launchd and shows the active account | Process and printed menu | Met; login persistence not observed |

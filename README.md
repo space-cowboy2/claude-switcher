@@ -44,7 +44,7 @@ in the [decision records](docs/adr/README.md).
 
 ## Status
 
-Installed on one Mac since 2026-11-09, with both accounts set up. 41 unit tests
+Installed on one Mac since 2026-11-09, with both accounts set up. 42 unit tests
 cover the sync, the switch and the limit rules, and the switch has been run against the real app.
 
 Not proven yet:
