@@ -264,7 +264,7 @@ public enum MenuModel {
         }
         rows.append(MenuRow(.separator))
         rows.append(MenuRow(.action("open"), "Open Claude"))
-        rows.append(MenuRow(.action("quit"), "Quit Switcher"))
+        rows.append(MenuRow(.action("quit"), "Quit Second Wind"))
         return rows
     }
 }

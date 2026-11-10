@@ -13,7 +13,7 @@ turns it into a fact, or says plainly that it does not.
 1. **No credentials.** Never open cookie stores, token caches or the keychain; never log or commit
    an account id, organisation id, email address or token. Use placeholders in docs and tests.
 2. **Never experiment on the real profiles.** Use throwaway profiles:
-   `claude-switch --home <tmp> …` with a config whose two `dataDir`s are temp folders. The main
+   `secondwind --home <tmp> …` with a config whose two `dataDir`s are temp folders. The main
    app keeps running untouched. The real profiles are for the owner's live checks only.
 3. **Sync and switch logic lives in `SwitchCore`** and is tested without the real app, through the
    `System` protocol. The CLI and the menu bar app stay thin.
@@ -39,8 +39,8 @@ turns it into a fact, or says plainly that it does not.
 | Path | What |
 | --- | --- |
 | `Sources/SwitchCore/` | Model and store, session sync, switch engine, limit rules, hook installer |
-| `Sources/claude-switch/` | Command-line tool and hook entry points |
-| `Sources/ClaudeSwitcher/` | Menu bar app |
+| `Sources/secondwind/` | Command-line tool and hook entry points |
+| `Sources/SecondWindBar/` | Menu bar app |
 | `Tests/SwitchCoreTests/` | Unit tests; `Support.swift` has the fake system and temp-folder world |
 | `scripts/` | Install and uninstall |
 | `docs/` | Spec, plan, decision records |

@@ -134,8 +134,9 @@ public enum HookRunner {
 
 public enum HookInstaller {
     static func isOurs(_ hook: [String: Any]) -> Bool {
-        guard let c = hook["command"] as? String else { return false }
-        return c.contains("claude-switch") && c.contains(" hook ")
+        guard let c = hook["command"] as? String, c.contains(" hook ") else { return false }
+        // "claude-switch" is the command's name before the rename; installs made then are replaced.
+        return c.contains("secondwind") || c.contains("claude-switch")
     }
 
     /// Returns `settings` with the switcher's hooks added (or removed). Other hooks are untouched,
@@ -188,7 +189,7 @@ public enum HookInstaller {
         var backup: URL?
         if let original {
             let b = file.deletingLastPathComponent()
-                .appendingPathComponent(file.lastPathComponent + ".bak-claude-switch-\(Int(now.timeIntervalSince1970))")
+                .appendingPathComponent(file.lastPathComponent + ".bak-secondwind-\(Int(now.timeIntervalSince1970))")
             try original.write(to: b)
             backup = b
         }
