@@ -1,8 +1,8 @@
-# Claude Switcher
+# Second Wind
 
-Use two Claude accounts in the Claude desktop app on one Mac, with one shared list of Code
-sessions, and switch between them from the menu bar or automatically when one account hits its
-usage limit.
+Keep working in the Claude desktop app when one account hits its usage limit. Second Wind keeps two
+Claude accounts signed in on one Mac, shows one shared list of Code sessions on both, and switches
+between them from the menu bar or by itself.
 
 ## The problem
 
@@ -15,7 +15,7 @@ until the limit resets. If you have a second account, getting to it is slow and 
 
 ## The solution
 
-Claude Switcher keeps both accounts signed in and makes them look like one workspace.
+Second Wind keeps both accounts signed in and makes them look like one workspace.
 
 - **Both accounts stay signed in.** Each account runs as its own profile of the Claude app. Switching is quit one, open the other. No sign-in.
 - **One session list.** Every Code session is copied into both accounts' lists. The conversations are shared, not duplicated.
@@ -23,22 +23,9 @@ Claude Switcher keeps both accounts signed in and makes them look like one works
 - **Always visible.** A menu bar icon shows the active account and each account's last known usage.
 - **Removable.** One script takes it out. Your sessions stay where they are.
 
-The menu, with example values:
+The menu (the addresses are placeholders):
 
-```
-⇄ 1
-  Claude account
-✓ Account 1 · you@example.com
-    Active · 5-hour 35% · weekly 20%
-  Account 2
-    5-hour 10% · weekly 60% · as of 9:00 PM
-  ──────────────────────────────────────
-  Switch to Account 2               ⌃⌥S
-✓ Switch automatically at limit
-  ──────────────────────────────────────
-  Open Claude
-  Quit Switcher
-```
+<img src="docs/images/menu.png" width="374" alt="The Second Wind menu: two accounts with their usage, Switch to Account 2, Switch automatically at limit, Open Claude, Quit Second Wind">
 
 ## How it works
 
@@ -64,10 +51,10 @@ Not proven yet:
 
 | Open question | Tracked in |
 | --- | --- |
-| Do the hooks fire in real desktop sessions? If not, the automatic switch never happens | [#1](https://github.com/space-cowboy2/claude-switcher/issues/1) |
-| Does a session started on one account continue on the other? | [#3](https://github.com/space-cowboy2/claude-switcher/issues/3) |
-| What happens at a real usage limit? None has occurred since install | [#7](https://github.com/space-cowboy2/claude-switcher/issues/7) |
-| Is using a second account this way within Anthropic's terms? | [#4](https://github.com/space-cowboy2/claude-switcher/issues/4) |
+| Do the hooks fire in real desktop sessions? If not, the automatic switch never happens | [#1](https://github.com/space-cowboy2/second-wind/issues/1) |
+| Does a session started on one account continue on the other? | [#3](https://github.com/space-cowboy2/second-wind/issues/3) |
+| What happens at a real usage limit? None has occurred since install | [#7](https://github.com/space-cowboy2/second-wind/issues/7) |
+| Is using a second account this way within Anthropic's terms? | [#4](https://github.com/space-cowboy2/second-wind/issues/4) |
 
 The tool relies on undocumented behaviour of the Claude app, so an app update can break it. The
 [specification](docs/spec.md) marks every claim as verified, read from the app's code, assumed or
@@ -90,8 +77,8 @@ This builds the tool and installs:
 
 | What | Where |
 | --- | --- |
-| Menu bar app (starts at login) | `~/Applications/Claude Switcher.app` |
-| Command-line tool | `~/.local/bin/claude-switch` |
+| Menu bar app (starts at login) | `~/Applications/Second Wind.app` |
+| Command-line tool | `~/.local/bin/secondwind` |
 | Two Claude Code hooks | `~/.claude/settings.json` (only the `hooks` section changes; a backup is written next to it) |
 
 ## Usage
@@ -110,8 +97,8 @@ This builds the tool and installs:
 | Switch accounts | Menu → **Switch to Account N**, or ⌃⌥S |
 | Stop automatic switching | Menu → untick **Switch automatically at limit** |
 | See what it did | `~/Library/Application Support/AccountSwitcher/switch.log` |
-| Switch from a terminal | `claude-switch switch` |
-| Check state | `claude-switch status` |
+| Switch from a terminal | `secondwind switch` |
+| Check state | `secondwind status` |
 
 After an automatic switch the session that hit the limit is open on the other account. Type
 "continue".
@@ -155,7 +142,7 @@ swift test
 ```
 
 `SwitchCore` holds all logic (sync, switch engine, limit rules, hook installer, menu model) and is
-tested without the real app. `claude-switch --home DIR …` points the tool at a throwaway config for
+tested without the real app. `secondwind --home DIR …` points the tool at a throwaway config for
 experiments with throwaway profiles. Read [CONTRIBUTING.md](CONTRIBUTING.md) before changing
 anything.
 
@@ -171,4 +158,9 @@ anything.
 
 ## License
 
-No license has been chosen. This repository is private.
+[MIT](LICENSE).
+
+Second Wind is an independent project. It is not affiliated with or endorsed by Anthropic, and it
+relies on undocumented behaviour of the Claude desktop app. Whether using a second account this way
+is within Anthropic's terms has not been established
+([#4](https://github.com/space-cowboy2/second-wind/issues/4)); check before you rely on it.
