@@ -65,9 +65,9 @@ command-line tool; two Claude Code hooks; install and uninstall scripts; backups
 4. Sign in with the second account. The session list is there.
 
 Expected: no further restart when the second account is one this Mac has seen before; one
-automatic restart when it is new (its session folder did not exist to be filled). For a known account: the copy is **[V]** (live, 2026-11-09: 8 folders, 231 records copied); that
-the second account then showed the list is inferred from the app writing its own index file into
-the copied folder, and has not been confirmed by eye **[A]**. **[A]** for a new account (unit-tested rule, never run live).
+automatic restart when it is new (its session folder did not exist to be filled). For a known account: the copy is **[V]** (live, 2026-11-09: 8 folders, 231 records copied); the
+app's log shows the second account loading every copied record **[V]**; what the sidebar then
+displays has not been confirmed by eye **[A]**. **[A]** for a new account (unit-tested rule, never run live).
 
 | Edge case | Behaviour |
 | --- | --- |
@@ -79,7 +79,8 @@ the copied folder, and has not been confirmed by eye **[A]**. **[A]** for a new 
 
 Menu → **Switch to Account N**, ⌃⌥S, clicking the other account's row, or `secondwind switch`.
 
-Expected: Claude quits (SIGTERM), sessions sync, Claude opens on the other profile, signed in.
+Expected: Claude quits (SIGQUIT), sessions sync, Claude opens on the other profile, signed in, on
+the session that was open before the switch.
 **[V]** live in both directions on the real profiles; about 1 s on empty throwaway profiles, the
 real figure has not been timed **[Q]**.
 
@@ -89,6 +90,8 @@ real figure has not been timed **[Q]**.
 | Target profile is already the one running | The app is brought to the front; nothing quits **[V]** unit |
 | Sync fails | Logged; Claude is still started on the target with its list as it was **[V]** unit |
 | Another switch is in progress | Refused with "Another switch is already in progress." **[V]** unit (lock) |
+| Claude's own "still working" dialog | Not shown: the quit signal skips it **[C]**. Under the first design (SIGTERM) it blocked a real switch for 100 s, and the retry killed the app without cleanup **[V]** |
+| The session is starred or pinned on the account you left | It is not starred on the other account: stars and pins are per profile. It is in the list under its date **[V]** prefs, **[A]** display |
 
 ### J3. Automatic switch at a usage limit
 
@@ -138,12 +141,12 @@ folder they were copied to. The first sync's backup of each original folder stay
 | --- | --- | --- |
 | FR-1 | Run each account as a separate app profile: Account 1 is the app's default data folder, Account 2 is started with `--user-data-dir=<folder>` | Built **[V]** |
 | FR-2 | Identify running instances and their profile from the main process's arguments; ignore instances on folders that are not configured | Built **[V]** |
-| FR-3 | Quit with SIGTERM to the main pid, wait for exit (default 100 s), then wait for helpers and for a pending update | Built **[V]** |
+| FR-3 | Quit with SIGQUIT to the main pid, wait for exit (default 100 s), then wait for helpers and for a pending update. Never signal twice to hurry it | Built **[V]** |
 | FR-4 | Sync session records between every `<account>/<org>` folder of every profile, only while no configured profile runs | Built **[V]** |
 | FR-5 | Sync rules: newest copy wins; deletions propagate unless the session changed elsewhere; a wiped folder or a deletion of more than half the list deletes nothing; first sync backs up every folder | Built **[V]** |
 | FR-6 | Automatic switch only if all hold: auto is on; event under 3 min old; the limited profile is the only one running; no switch in the last 90 s; the other profile is signed in, to a different account, and not marked limited | Built **[V]** |
 | FR-7 | Tell a usage limit from a transient error using the hook's message and the transcript's last API error; take the reset time from the transcript | Built **[V]** on real transcript samples; live payload **[Q]** |
-| FR-8 | Reopen the limited session on the other profile through `claude://code/continue?session=local_<id>` | Built **[V]** argument passed; that the real app opens the session **[Q]** |
+| FR-8 | Land on the same session after a switch through `claude://code/continue?session=local_<id>`: the session that hit the limit after an automatic switch, the session that was open after a manual one. The link is passed at launch and sent again 8 s later | Built **[V]**; the running app focuses a session when sent the link (seen in its log, 4.23118.1); after a real switch **[Q]** |
 | FR-9 | Menu bar: active account, per-account label and last known usage, switch item with ⌃⌥S, auto toggle, Open Claude | Built **[V]** by printed menu model, not by eye |
 | FR-10 | Install hooks into `~/.claude/settings.json` changing only the `hooks` value, with a backup; removable; idempotent | Built **[V]** |
 | FR-11 | A session started on one account continues on the other | **[Q]** never tried; see plan |
@@ -231,13 +234,14 @@ None of this is a documented interface. Each item can break in any app update.
 | I2 | Sessions are `claude-code-sessions/<account>/<org>/local_<id>.json`; a record names no account, so a copy in another account's folder is that account's session | **[C]**; **[V]** in part: the second account loaded a copied folder and wrote its index into it |
 | I3 | The app opens that folder with `O_NOFOLLOW`, so a symlinked folder cannot be saved to | **[C]**, behaviour reproduced outside the app |
 | I4 | The list is loaded at start and on account change only; no file watching | **[C]** |
-| I5 | SIGTERM to the main process quits cleanly and skips the "Claude is still working" dialog | **[C]**; **[V]** that it exits |
+| I5 | SIGQUIT reaches the app's own signal handler, which skips the "Claude is still working" dialog and shuts down cleanly. SIGTERM does not: Chromium takes it first, the dialog can veto the quit, and a second SIGTERM kills the app with no cleanup | **[V]** on 4.23118.1: a real switch was vetoed under SIGTERM and the second SIGTERM left no cleanup in the app's log (2026-11-10); on throwaway profiles only SIGQUIT logged the handler. That the handler skips the dialog while a session is running is **[C]** |
 | I6 | The updater (Squirrel `ShipIt`) replaces the app bundle after the last instance exits | **[C]**; **[V]** once, live |
-| I7 | `claude://code/continue?session=local_<id>` given as a launch argument opens that session | **[C]** |
+| I7 | `claude://code/continue?session=local_<id>` opens that session, given as a launch argument or sent to the running app | Sent to the running app: **[V]** (its log shows the session focused, 4.23118.1). As a launch argument: **[C]** |
 | I8 | Transcripts live only in `~/.claude/projects`, shared by both profiles | **[C]**; **[V]** every session checked (32) resolved there |
 | I9 | `plan-usage-history.json` holds five-hour and seven-day utilisation per organisation | **[V]** read live |
 | I10 | `config.json` key `lastKnownAccountUuid` names the account last signed in | **[V]** read live |
 | I11 | Claude Code runs user-level hooks in desktop sessions and passes the environment in section 7 | **[V]** for an existing `SessionStart` hook with matcher `startup`; **[Q]** for the two hooks this tool adds |
+| I12 | `claude_desktop_config.json` → `preferences.epitaxyPrefs` → `desktop-frame.paneStore.v1` → `state.lastPrimaryCodeSession.id` is the session a profile has open | **[V]** read live: it named the open session |
 
 Also true and worth knowing **[C]**: the second profile cannot pair with Claude in Chrome; it
 keeps its own copy of Claude Code (about 300 MB); the app has its own "auto-continue when the limit
@@ -279,7 +283,8 @@ No third-party packages. No network access of its own.
 
 **Credentials.** The tool never opens cookie stores, token caches or the keychain. From each
 profile's `config.json`, which also holds an encrypted token cache, it reads the single key
-`lastKnownAccountUuid` and discards the rest. **[V]** by reading the code.
+`lastKnownAccountUuid` and discards the rest. From `claude_desktop_config.json` it reads only the id
+of the session that is open. **[V]** by reading the code.
 
 **Personal data it stores**, locally and only in `state.json` and event files: account id,
 organisation id, the account's email address, and up to 200 characters of a limit error message.
@@ -324,6 +329,8 @@ plan. The owner made the repository public on 2026-11-10 with this question stil
 | R8 | Any reliance in section 8 changes in an app update | **[A]** | Anything from a stale list to a failed switch |
 | R9 | Anthropic turns on the built-in account switcher | **[C]** | The tool becomes unnecessary; plan a clean exit |
 | R10 | Terms of service | **[Q]** | Account risk |
+| R11 | Stars, pins and sidebar grouping are per profile. A session starred on one account sits unstarred in the date-grouped list of the other | **[V]** prefs | The session looks missing after a switch. Reported by the owner on 2026-11-10; landing on the open session (FR-8) is the mitigation |
+| R12 | The quit signal's dialog bypass is read from code, not seen with a session running | **[C]** | A switch could stall on the dialog again |
 
 ### Where each open item is tracked
 
@@ -339,6 +346,8 @@ plan. The owner made the repository public on 2026-11-10 with this question stil
 | R8, A13, NFR-7: app updates | [#5](https://github.com/space-cowboy2/second-wind/issues/5), [#18](https://github.com/space-cowboy2/second-wind/issues/18) |
 | R9: built-in switcher | [#19](https://github.com/space-cowboy2/second-wind/issues/19) |
 | R10: terms of service | [#4](https://github.com/space-cowboy2/second-wind/issues/4) |
+| R11: stars and pins per profile | [#15](https://github.com/space-cowboy2/second-wind/issues/15) |
+| R12, I5, FR-8 after a real switch | [#24](https://github.com/space-cowboy2/second-wind/issues/24) |
 | FR-12 doctor, FR-13 restore | [#6](https://github.com/space-cowboy2/second-wind/issues/6), [#13](https://github.com/space-cowboy2/second-wind/issues/13) |
 | Limit rules beyond FR-6 | [#8](https://github.com/space-cowboy2/second-wind/issues/8), [#10](https://github.com/space-cowboy2/second-wind/issues/10), [#11](https://github.com/space-cowboy2/second-wind/issues/11) |
 | Upkeep | [#17](https://github.com/space-cowboy2/second-wind/issues/17), [#20](https://github.com/space-cowboy2/second-wind/issues/20) |
@@ -355,7 +364,7 @@ plan. The owner made the repository public on 2026-11-10 with this question stil
 | A6 | Real app: switch between two throwaway profiles while the main app stays up | Integration run, 2026-11-09 | Met |
 | A7 | Hook binary and menu bar app act on a real-shaped limit; ignore a transient one | Integration run, 2026-11-09 | Met |
 | A8 | Menu bar app runs under launchd and shows the active account | Process and printed menu | Met; login persistence not observed |
-| A9 | Second account signs in on the real profile and sees the shared list | Live: signed in; 33 records in all 8 folders; the app wrote its index in the copied folder | Sign-in and copy met; "sees the list" inferred, owner to confirm |
+| A9 | Second account signs in on the real profile and sees the shared list | Live: signed in; the app's log shows Account 2 loading every record from the copied folder (20 open and 17 archived, 2026-11-10) | Loaded: met. Displayed: not confirmed; the owner did not find one session in the sidebar (R11) |
 | A10 | Hooks fire in real desktop sessions on both profiles | none | **Open** (R1) |
 | A11 | A simulated limit on the real profiles switches and reopens the session; a message sent there gets a reply | none | **Open** (R3) |
 | A12 | A real usage limit switches | none | **Open** (R2); cannot be scheduled |

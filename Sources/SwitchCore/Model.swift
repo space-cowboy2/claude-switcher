@@ -26,6 +26,9 @@ public struct Config: Codable, Equatable {
     public var debounce: Double
     /// How long an account counts as limited when the reset time is unknown.
     public var limitFallbackMinutes: Double
+    /// Seconds after launch before the "reopen this session" link is sent a second time. 0 turns
+    /// the second send off.
+    public var reopenDelay: Double = 8
     /// The data folder Claude uses when started with no arguments.
     public var defaultDataDir: String = Config.defaultDataDir
 
@@ -66,6 +69,7 @@ public struct Config: Codable, Equatable {
         quitTimeout = try c.decodeIfPresent(Double.self, forKey: .quitTimeout) ?? 100
         debounce = try c.decodeIfPresent(Double.self, forKey: .debounce) ?? 90
         limitFallbackMinutes = try c.decodeIfPresent(Double.self, forKey: .limitFallbackMinutes) ?? 60
+        reopenDelay = try c.decodeIfPresent(Double.self, forKey: .reopenDelay) ?? 8
         defaultDataDir = Config.normalize(try c.decodeIfPresent(String.self, forKey: .defaultDataDir) ?? Config.defaultDataDir)
     }
 
