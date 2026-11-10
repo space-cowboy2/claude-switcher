@@ -323,6 +323,24 @@ plan. The repository is private until that is settled. **[D]**
 | R9 | Anthropic turns on the built-in account switcher | **[C]** | The tool becomes unnecessary; plan a clean exit |
 | R10 | Terms of service | **[Q]** | Account risk |
 
+### Where each open item is tracked
+
+| Spec item | Issue |
+| --- | --- |
+| R1, A10, I11: hooks in real sessions | [#1](https://github.com/space-cowboy2/claude-switcher/issues/1) |
+| R2, A12: real limit payload | [#7](https://github.com/space-cowboy2/claude-switcher/issues/7) |
+| R3, A11, FR-8, FR-11: drill and continue on the other account | [#2](https://github.com/space-cowboy2/claude-switcher/issues/2), [#3](https://github.com/space-cowboy2/claude-switcher/issues/3) |
+| R4: delete strands a session | [#12](https://github.com/space-cowboy2/claude-switcher/issues/12) |
+| R5: the app's own auto-resume | [#9](https://github.com/space-cowboy2/claude-switcher/issues/9) |
+| R6: both profiles open | [#14](https://github.com/space-cowboy2/claude-switcher/issues/14) |
+| R7: extra replica folders | [#16](https://github.com/space-cowboy2/claude-switcher/issues/16) |
+| R8, A13, NFR-7: app updates | [#5](https://github.com/space-cowboy2/claude-switcher/issues/5), [#18](https://github.com/space-cowboy2/claude-switcher/issues/18) |
+| R9: built-in switcher | [#19](https://github.com/space-cowboy2/claude-switcher/issues/19) |
+| R10: terms of service | [#4](https://github.com/space-cowboy2/claude-switcher/issues/4) |
+| FR-12 doctor, FR-13 restore | [#6](https://github.com/space-cowboy2/claude-switcher/issues/6), [#13](https://github.com/space-cowboy2/claude-switcher/issues/13) |
+| Limit rules beyond FR-6 | [#8](https://github.com/space-cowboy2/claude-switcher/issues/8), [#10](https://github.com/space-cowboy2/claude-switcher/issues/10), [#11](https://github.com/space-cowboy2/claude-switcher/issues/11) |
+| Upkeep | [#17](https://github.com/space-cowboy2/claude-switcher/issues/17), [#20](https://github.com/space-cowboy2/claude-switcher/issues/20) |
+
 ## 13. Acceptance criteria and testing
 
 | # | Criterion | Evidence | State |
