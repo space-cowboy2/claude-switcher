@@ -4,6 +4,8 @@
 
 - Docs: full specification with evidence marks, decision records, contributing guide, and a
   milestone plan backed by GitHub issues.
+- README restructured as problem, solution, how it works, status, install, usage, limitations.
+  Corrects the install note: only the `hooks` section of the settings file changes.
 
 ## 0.1.0 (2026-11-09)
 
