@@ -54,7 +54,7 @@ Keep it working across app updates and make it installable without edits. Exit: 
 | [#17](https://github.com/space-cowboy2/second-wind/issues/17) | CI: run the tests on every push | P1 | ops | – |
 | [#18](https://github.com/space-cowboy2/second-wind/issues/18) | Notice a Claude update and re-run the internals check | P2 | ops | [#5](https://github.com/space-cowboy2/second-wind/issues/5), [#6](https://github.com/space-cowboy2/second-wind/issues/6) |
 | [#19](https://github.com/space-cowboy2/second-wind/issues/19) | Detect the app's built-in account switcher and plan the exit | P2 | ops | – |
-| [#20](https://github.com/space-cowboy2/second-wind/issues/20) | Remove the hardcoded identifier and give the tool a version | P2 | ops | – |
+| [#20](https://github.com/space-cowboy2/second-wind/issues/20) | Give the tool a version and tag releases | P2 | ops | – |
 
 ## Where to start
 
