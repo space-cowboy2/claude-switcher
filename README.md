@@ -4,7 +4,15 @@ Menu bar tool for one person with two Claude accounts on one Mac. It keeps each 
 as its own profile of the Claude desktop app, keeps one Code session list across both, and switches
 profiles on a click, on ⌃⌥S, or by itself when the active account hits its usage limit.
 
-Design, findings and acceptance criteria: [docs/spec.md](docs/spec.md).
+## Documentation
+
+| Document | What it covers |
+| --- | --- |
+| [docs/spec.md](docs/spec.md) | What the tool does, what is proven and what is not, requirements, architecture, data, risks |
+| [docs/plan.md](docs/plan.md) | Milestones and the GitHub issues behind them |
+| [docs/adr/](docs/adr/README.md) | Why it is built this way |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Rules for changing it |
+| [CHANGELOG.md](CHANGELOG.md) | What changed |
 
 ## Install
 
