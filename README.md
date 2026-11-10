@@ -17,11 +17,11 @@ until the limit resets. If you have a second account, getting to it is slow and 
 
 Claude Switcher keeps both accounts signed in and makes them look like one workspace.
 
-- **Both accounts stay signed in**. Each account runs as its own profile of the Claude app. Switching is quit one, open the other. No sign-in.
-- **One session list**. Every Code session is copied into both accounts' lists. The conversations are shared, not duplicated.
-- **Automatic switch at a limit**. When a session stops on a usage limit, Claude reopens on the other account with that session open. You type "continue".
-- **Always visible**. A menu bar icon shows the active account and each account's last known usage.
-- **Removable**. One script takes it out. Your sessions stay where they are.
+- **Both accounts stay signed in.** Each account runs as its own profile of the Claude app. Switching is quit one, open the other. No sign-in.
+- **One session list.** Every Code session is copied into both accounts' lists. The conversations are shared, not duplicated.
+- **Automatic switch at a limit.** When a session stops on a usage limit, Claude reopens on the other account with that session open. You type "continue".
+- **Always visible.** A menu bar icon shows the active account and each account's last known usage.
+- **Removable.** One script takes it out. Your sessions stay where they are.
 
 The menu, with example values:
 
